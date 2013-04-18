@@ -5,8 +5,8 @@ from moxie.core.representations import HALRepresentation
 from .views import Search
 
 
-def create_blueprint(blueprint_name):
-    contact_blueprint = Blueprint(blueprint_name, __name__)
+def create_blueprint(blueprint_name, conf):
+    contact_blueprint = Blueprint(blueprint_name, __name__, **conf)
 
     contact_blueprint.add_url_rule('/', view_func=get_routes)
 
