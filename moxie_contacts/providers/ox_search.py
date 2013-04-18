@@ -87,7 +87,7 @@ class ContactProvider(object):
                                     timeout=2, config={'danger_mode': True})
         except RequestException:
             logger.error("Couldn't reach {url}".format(url=self.api_url,),
-                         exc_info=True, extra={'data': {'control_number': self.control_number}})
+                         exc_info=True)
             raise ServiceUnavailable()
         else:
             x_people = etree.fromstring(response.content)
