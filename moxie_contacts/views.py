@@ -5,7 +5,7 @@ from flask import request, abort
 from moxie.core.views import ServiceView, accepts
 from moxie.core.representations import JSON, HAL_JSON
 from moxie_contacts.services import ContactSearchService
-from moxie_contacts.representations import HALPersonRepresentation
+from moxie_contacts.representations import HALPersonsRepresentation
 
 logger = logging.getLogger(__name__)
 
@@ -22,4 +22,5 @@ class Search(ServiceView):
 
     @accepts(HAL_JSON, JSON)
     def as_hal_json(self, results):
-        return HALPersonRepresentation(results[0], request.url_rule.endpoint).as_json()
+        return HALPersonsRepresentation(results, self.q, self.medium,
+                                        request.url_rule.endpoint).as_json()

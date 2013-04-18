@@ -25,20 +25,31 @@ class PersonRepresentation(Representation):
         return jsonify(self.as_dict())
 
 
-class HALPersonRepresentation(PersonRepresentation):
+class PersonsRepresentation(Representation):
 
-    def __init__(self, person, endpoint):
-        """HAL  representation for an item
-        :param item: domain item to represent
-        :param endpoint: base endpoint (URL)
-        """
-        super(HALPersonRepresentation, self).__init__(person)
-        self.endpoint = endpoint
+    def __init__(self, persons):
+        self.persons = persons
 
     def as_dict(self):
-        base = super(HALPersonRepresentation, self).as_dict()
-        representation = HALRepresentation(base)
-        representation.add_link('self', url_for(self.endpoint))
+        return {'persons': [PersonRepresentation(person).as_dict()
+                            for person in self.persons]}
+
+    def as_json(self):
+        return jsonify(self.as_dict())
+
+
+class HALPersonsRepresentation(PersonsRepresentation):
+
+    def __init__(self, persons, query, medium, endpoint):
+        self.endpoint = endpoint
+        self.query = query
+        self.medium = medium
+        self.persons = persons
+
+    def as_dict(self):
+        persons = PersonsRepresentation(self.persons).as_dict()
+        representation = HALRepresentation(persons)
+        representation.add_link('self', url_for(self.endpoint, q=self.query, medium=self.medium))
         return representation.as_dict()
 
     def as_json(self):
