@@ -4,6 +4,8 @@ import re
 import requests
 from lxml import etree
 
+from moxie.core.exceptions import ServiceUnavailable
+from requests.exceptions import RequestException
 from moxie_contacts.domain import Person
 
 logger = logging.getLogger(__name__)
@@ -74,29 +76,32 @@ class ContactProvider(object):
             }
 
     def perform_query(self, surname, initial, medium, exact):
-
         query_string = ';'.join('%s=%s' % i for i in (
             ('surname', re.sub(r"[^A-Za-z\-']", '', surname or '')),
             ('initial',re.sub(r"[^A-Za-z\-']", '', initial or '')),
             ('match', 'exact' if exact else 'approximate'),
             ('type', medium),
         ))
-        # TODO handle connection error
-        response = requests.get(self.api_url + query_string)
-        x_people = etree.fromstring(response.content)
+        try:
+            response = requests.get(self.api_url + query_string,
+                                    timeout=2, config={'danger_mode': True})
+        except RequestException:
+            logger.error("Couldn't reach {url}".format(url=self.api_url,),
+                         exc_info=True, extra={'data': {'control_number': self.control_number}})
+            raise ServiceUnavailable()
+        else:
+            x_people = etree.fromstring(response.content)
+            people = []
+            for x_person in x_people.findall('person'):
+                name = x_person.find('name').text
+                unit = [x_person.find('unit' if medium == 'email' else 'dept').text][0]
+                person = Person(name, unit)
 
-        people = []
-        for x_person in x_people.findall('person'):
-            name = x_person.find('name').text
-            unit = [x_person.find('unit' if medium == 'email' else 'dept').text][0]
-            person = Person(name, unit)
+                if medium == 'email':
+                    person.email = [x_person.find('email').text][0]
 
-            if medium == 'email':
-                person.email = [x_person.find('email').text][0]
-
-            if medium == 'phone':
-                person.internal_tel = x_person.find('phone_from_in').text
-                person.external_tel = [x_person.find('phone_from_out').text]
-            people.append(person)
-
-        return people
+                if medium == 'phone':
+                    person.internal_tel = x_person.find('phone_from_in').text
+                    person.external_tel = [x_person.find('phone_from_out').text]
+                people.append(person)
+            return people
