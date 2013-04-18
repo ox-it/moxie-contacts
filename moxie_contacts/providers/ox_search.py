@@ -94,14 +94,14 @@ class ContactProvider(object):
             people = []
             for x_person in x_people.findall('person'):
                 name = x_person.find('name').text
-                unit = [x_person.find('unit' if medium == 'email' else 'dept').text][0]
+                unit = x_person.find('unit' if medium == 'email' else 'dept').text
                 person = Person(name, unit)
 
                 if medium == 'email':
-                    person.email = [x_person.find('email').text][0]
+                    person.email = x_person.find('email').text
 
                 if medium == 'phone':
                     person.internal_tel = x_person.find('phone_from_in').text
-                    person.external_tel = [x_person.find('phone_from_out').text]
+                    person.external_tel = x_person.find('phone_from_out').text
                 people.append(person)
             return people
