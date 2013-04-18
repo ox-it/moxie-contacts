@@ -15,7 +15,6 @@ class Search(ServiceView):
     AUTHORIZED_MEDIUMS = ('phone', 'email')
 
     def handle_request(self):
-        # 1. Request from Service
         self.q = request.args.get('q', None)
         self.medium = request.args.get('medium', None)
         if not self.q or not self.medium:
