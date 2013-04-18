@@ -83,7 +83,7 @@ class ContactProvider(object):
             ('type', medium),
         ))
         try:
-            response = requests.get(self.api_url + query_string,
+            response = requests.get('{}?{}'.format(self.api_url, query_string),
                                     timeout=2, config={'danger_mode': True})
         except RequestException:
             logger.error("Couldn't reach {url}".format(url=self.api_url,),
