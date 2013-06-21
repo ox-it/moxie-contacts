@@ -1,9 +1,10 @@
 import logging
 
-from flask import request, abort
+from flask import request
 
 from moxie.core.views import ServiceView, accepts
 from moxie.core.representations import JSON, HAL_JSON
+from moxie.core.exceptions import BadRequest
 from moxie_contacts.services import ContactSearchService
 from moxie_contacts.representations import HALPersonsRepresentation
 
@@ -18,9 +19,9 @@ class Search(ServiceView):
         self.q = request.args.get('q', None)
         self.medium = request.args.get('medium', None)
         if not self.q or not self.medium:
-            abort(400, description="Parameters 'q' (query) and 'medium' ('phone' or 'email') are mandatory.")
+            raise BadRequest("Parameters 'q' (query) and 'medium' ('phone' or 'email') are mandatory.")
         if self.medium not in Search.AUTHORIZED_MEDIUMS:
-            abort(400, description="'medium' should be one of '{}'.".format(', '.join(Search.AUTHORIZED_MEDIUMS)))
+            raise BadRequest("'medium' should be one of '{}'.".format(', '.join(Search.AUTHORIZED_MEDIUMS)))
         provider = ContactSearchService.from_context()
         results = provider.search(self.q, self.medium)
         return results
