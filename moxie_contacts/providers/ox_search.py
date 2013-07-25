@@ -84,7 +84,8 @@ class ContactProvider(object):
         ))
         try:
             response = requests.get('{}?{}'.format(self.api_url, query_string),
-                                    timeout=2, config={'danger_mode': True})
+                                    timeout=2)
+            response.raise_for_status()
         except RequestException:
             logger.error("Couldn't reach {url}".format(url=self.api_url,),
                          exc_info=True)
