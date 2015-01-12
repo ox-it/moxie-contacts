@@ -11,25 +11,47 @@ Endpoint for contact searcg. Follows specification of Moxie.
 
     .. sourcecode:: http
 
-		GET /contact/search?q=smith HTTP/1.1
+		GET /contact/search?q=smith&medium=phone HTTP/1.1
 		Host: api.m.ox.ac.uk
-		Accept: application/hal+json
+		Accept: application/json
 
-    **Example response as HAL+JSON**:
+    **Example response as HAL/JSON**:
 
     .. sourcecode:: http
 
-		HTTP/1.1 200 OK
-		Content-Type: application/hal+json
+        HTTP/1.1 200 OK
+        Content-Type: application/json
 
+        {
+          "_links": {
+            "self": {
+              "href": "/contact/search?q=martin&medium=phone"
+            }
+          },
+          "persons": [
+            {
+              "external_tel": "xxxxx xxxxx",
+              "internal_tel": "xxxxx",
+              "name": "Martin, Dr X",
+              "unit": "X, Department of"
+            },
+            {
+              "external_tel": "xxxxx xxxxx",
+              "internal_tel": "xxxxx",
+              "name": "Martin, Dr X",
+              "unit": "X"
+            },
+            [...]
+          ]
+        }
 
-    The response contains a list of results, links to go to first, previous, next and last pages depending on current `start` and `count` parameters, and the total count of results.
+    The response contains a list of results. 
 
-    :query q: title to search for
+    :query q: search query
     :type q: string
-    :query medium: author to search for
+    :query medium: directory to search: `phone` or `email`
     :type medium: string
 
     :statuscode 200: results found
-    :statuscode 400: search query is inconsistent (expect details about the error as plain/text in the body of the response)
+    :statuscode 400: search query is inconsistent (expect details about the error as application/json in the body of the response)
     :statuscode 503: search service is not available
