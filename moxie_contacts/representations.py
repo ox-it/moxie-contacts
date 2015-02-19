@@ -40,16 +40,17 @@ class PersonsRepresentation(Representation):
 
 class HALPersonsRepresentation(PersonsRepresentation):
 
-    def __init__(self, persons, query, medium, endpoint):
+    def __init__(self, persons, query, medium, match, endpoint):
         self.endpoint = endpoint
         self.query = query
         self.medium = medium
+        self.match = match
         self.persons = persons
 
     def as_dict(self):
         persons = PersonsRepresentation(self.persons).as_dict()
         representation = HALRepresentation(persons)
-        representation.add_link('self', url_for(self.endpoint, q=self.query, medium=self.medium))
+        representation.add_link('self', url_for(self.endpoint, q=self.query, medium=self.medium, match=self.match))
         return representation.as_dict()
 
     def as_json(self):

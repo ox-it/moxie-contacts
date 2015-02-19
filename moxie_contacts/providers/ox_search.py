@@ -26,18 +26,19 @@ class ContactProvider(object):
         """
         self.api_url = url
 
-    def search(self, query, medium):
+    def search(self, query, medium, match):
         """Search in the provider
         :param query: search query
         :param medium: medium (phone or email)
+        :param exact: whether to search for exact matches. If False, search is approximate.
         :return: list of domain objects
         """
-        normalized = self.normalize_query(query, medium)
+        normalized = self.normalize_query(query, medium, match)
         results = self.perform_query(normalized['surname'], normalized['initial'],
-                                     normalized['medium'], normalized['exact'])
+                                     normalized['medium'], normalized['match'])
         return results
 
-    def normalize_query(self, query, medium):
+    def normalize_query(self, query, medium, match):
         # Examples of initial / surname splitting
         # William Bloggs is W, Bloggs
         # Bloggs         is  , Bloggs
@@ -72,16 +73,17 @@ class ContactProvider(object):
             'surname': surname,
             'initial': initial,
             'medium': medium,
-            'exact': True,
+            'match': match,
             }
 
-    def perform_query(self, surname, initial, medium, exact):
+    def perform_query(self, surname, initial, medium, match):
         query_string = ';'.join('%s=%s' % i for i in (
             ('surname', re.sub(r"[^A-Za-z\-']", '', surname or '')),
             ('initial',re.sub(r"[^A-Za-z\-']", '', initial or '')),
-            ('match', 'exact' if exact else 'approximate'),
+            ('match', match),
             ('type', medium),
         ))
+
         try:
             response = requests.get('{}?{}'.format(self.api_url, query_string),
                                     timeout=2)
