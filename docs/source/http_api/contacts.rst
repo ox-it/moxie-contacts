@@ -1,7 +1,7 @@
 Contact endpoint
 ================
 
-Endpoint for contact searcg. Follows specification of Moxie.
+Endpoint for contact search. Follows specification of Moxie.
 
 .. http:get:: /contact/search
 
@@ -11,7 +11,7 @@ Endpoint for contact searcg. Follows specification of Moxie.
 
     .. sourcecode:: http
 
-		GET /contact/search?q=smith&medium=phone HTTP/1.1
+		GET /contact/search?q=smith&medium=phone&match=exact HTTP/1.1
 		Host: api.m.ox.ac.uk
 		Accept: application/json
 
@@ -25,7 +25,7 @@ Endpoint for contact searcg. Follows specification of Moxie.
         {
           "_links": {
             "self": {
-              "href": "/contact/search?q=martin&medium=phone"
+              "href": "/contact/search?q=martin&medium=phone&match=exact"
             }
           },
           "persons": [
@@ -51,6 +51,8 @@ Endpoint for contact searcg. Follows specification of Moxie.
     :type q: string
     :query medium: directory to search: `phone` or `email`
     :type medium: string
+    :query match: which entries to match: `exact` or `approximate`
+    :type match: string
 
     :statuscode 200: results found
     :statuscode 400: search query is inconsistent (expect details about the error as application/json in the body of the response)
